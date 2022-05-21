@@ -17,15 +17,20 @@ import (
 	"sync"
 )
 
-var wg sync.WaitGroup // 等待组
+var (
+	carpool chan map[string]bool
+	wg      sync.WaitGroup
+)
 
 func DoWork(ctx context.Context, inputPath, outPath string) {
+	var carmap map[string]bool
 	fil, err := GetAllFile(inputPath)
 	if err != nil {
 		log.Fatalf("GetAllFile  panic: %v, stack: %s", err, debug.Stack())
 
 		return
 	}
+
 	for _, s := range fil {
 		absPath, err := filepath.Abs(s)
 		if err != nil {
@@ -45,6 +50,21 @@ func DoWork(ctx context.Context, inputPath, outPath string) {
 			fmt.Println(err)
 			return
 		}
+		carmap[out_] = false
+	}
+	carpool <- carmap
+
+	for {
+		select {
+		case <-ctx.Done():
+			break
+		case _, ok := <-carpool:
+			if !ok {
+				log.Printf("read carpool  is not ok")
+			}
+
+		}
+
 	}
 }
 
@@ -93,12 +113,11 @@ func ClientImport(ctx context.Context, path string) (error, string) {
 		if err != nil {
 			return err, ""
 		}
-		encoder, err := GetCidEncoder()
 		if err != nil {
 			log.Fatalf("encoder file is failed:%v", err)
 			return err, ""
 		}
-		fmt.Println(encoder.Encode(c.Root))
+		fmt.Printf("Import %d, Root ", c.ImportID)
 	}
 	wg.Done()
 
@@ -172,5 +191,6 @@ func GetAllFile(pathname string) ([]string, error) {
 
 func GetCidEncoder() (cidenc.Encoder, error) {
 	e := cidenc.Encoder{Base: multibase.MustNewEncoder(multibase.Base32)}
+
 	return e, nil
 }

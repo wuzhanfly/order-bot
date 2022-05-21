@@ -117,7 +117,7 @@ func ClientImport(ctx context.Context, path string) (error, string) {
 			log.Fatalf("encoder file is failed:%v", err)
 			return err, ""
 		}
-		fmt.Printf("Import %d, Root ", c.ImportID)
+		fmt.Println("Import %d, Root ", c.ImportID)
 	}
 	wg.Done()
 

@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"log"
 	"order/lotuss"
-	"os"
 	"path"
 	"path/filepath"
 	"runtime/debug"
@@ -21,14 +20,13 @@ import (
 var wg sync.WaitGroup // 等待组
 
 func DoWork(ctx context.Context, inputPath, outPath string) {
-	fmt.Println(inputPath, outPath)
 	fil, err := GetAllFile(inputPath)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatalf("GetAllFile  panic: %v, stack: %s", err, debug.Stack())
+
 		return
 	}
 	for _, s := range fil {
-		fmt.Println(s)
 		absPath, err := filepath.Abs(s)
 		if err != nil {
 			log.Fatalf("get file abs is failed:%v", err)
@@ -42,9 +40,6 @@ func DoWork(ctx context.Context, inputPath, outPath string) {
 			IsCAR: strings.Contains(s, ".car"),
 		}
 		out_ := outPath + "/" + name + ".car"
-		fmt.Println(out_)
-		_, err = os.Open(ref.Path)
-		fmt.Println(ref.Path, "err:", err)
 		err = lotuss.Node().ClientGenCar(ctx, ref, out_)
 		if err != nil {
 			fmt.Println(err)
@@ -149,6 +144,7 @@ func GetAllFile(pathname string) ([]string, error) {
 	fis, err := ioutil.ReadDir(pathname)
 	if err != nil {
 		fmt.Printf("读取文件目录失败，pathname=%v, err=%v \n", pathname, err)
+
 		return result, err
 	}
 

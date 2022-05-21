@@ -113,11 +113,15 @@ func ClientImport(ctx context.Context, path string) (error, string) {
 		if err != nil {
 			return err, ""
 		}
+		encoder, err := GetCidEncoder(ctx)
+
 		if err != nil {
 			log.Fatalf("encoder file is failed:%v", err)
 			return err, ""
 		}
-		fmt.Println("Import %d, Root ", c.ImportID)
+		fmt.Printf("Import %d, Root ", c.ImportID)
+		fmt.Println(encoder.Encode(c.Root))
+
 	}
 	wg.Done()
 
@@ -143,7 +147,7 @@ func ClientCommP(ctx context.Context, path string) (error, string) {
 		if err != nil {
 			return err, ""
 		}
-		encoder, err := GetCidEncoder()
+		encoder, err := GetCidEncoder(ctx)
 		if err != nil {
 			log.Fatalf("encoder file is failed:%v", err)
 			return err, ""
@@ -189,7 +193,8 @@ func GetAllFile(pathname string) ([]string, error) {
 // GetCidEncoder returns an encoder using the `cid-base` flag if provided, or
 // the default (Base32) encoder if not.
 
-func GetCidEncoder() (cidenc.Encoder, error) {
+func GetCidEncoder(ctx context.Context) (cidenc.Encoder, error) {
+
 	e := cidenc.Encoder{Base: multibase.MustNewEncoder(multibase.Base32)}
 
 	return e, nil

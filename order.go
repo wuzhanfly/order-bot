@@ -19,6 +19,7 @@ type ServerCfg struct {
 	GenerateDir string `yaml:"generateDir"`
 	ImportDir   string `yaml:"importDir"`
 	ListenAddr  string `yaml:"listen_addr"`
+	MinerID     string `yaml:"miner_id"`
 }
 
 func loadConfig(configFilePath string) *ServerCfg {
@@ -74,10 +75,10 @@ func main() {
 			return err
 		}
 		if modInt == 0 { //path
-			work.DoWorkCar(c.Context, cfg.ImportDir)
+			work.DoWorkCar(c.Context, cfg.ImportDir, cfg.MinerID)
 		}
 		if modInt == 1 { //path
-			work.DoWork(c.Context, cfg.GenerateDir, cfg.ImportDir)
+			work.DoWork(c.Context, cfg.GenerateDir, cfg.ImportDir, cfg.MinerID)
 
 		}
 

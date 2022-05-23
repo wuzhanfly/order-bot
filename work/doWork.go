@@ -91,20 +91,31 @@ func DoWork(ctx context.Context, inputPath, outPath string) {
 
 func DoWorkCar(ctx context.Context, path string) {
 	wg.Add(2)
-	go func() {
-		err, _ := ClientImport(ctx, path)
-		if err != nil {
-			log.Println("ClientImport is err:", err)
-		}
 
-	}()
-	go func() {
-		err, _ := ClientCommP(ctx, path)
-		if err != nil {
-			log.Println("ClientCommP is err:", err)
+	err, i := ClientImport(ctx, path)
+	if err != nil {
+		log.Println("ClientImport is err:", err)
+	}
 
+	err, c := ClientCommP(ctx, path)
+	if err != nil {
+		log.Println("ClientCommP is err:", err)
+
+	}
+	for _, car := range i {
+		var r RES
+		if _, ok := res[car.CarPath]; !ok {
+			for _, pCar := range c {
+				r.OriginPath = car.CarPath
+				r.CarPath = car.CarPath
+				r.Root = car.Root
+				r.Size = pCar.Size
+				r.CID = pCar.CID
+
+			}
 		}
-	}()
+		res[car.CarPath] = r
+	}
 
 	wg.Wait()
 
@@ -122,7 +133,7 @@ func ClientImport(ctx context.Context, path string) (error, []ImportCar) {
 		log.Fatalf("get file is failed:%v", err)
 	}
 	for _, s := range pathname {
-		var car RES
+		var car ImportCar
 		absPath, err := filepath.Abs(s)
 		if err != nil {
 			log.Fatalf("get file abs is failed:%v", err)
@@ -150,7 +161,8 @@ func ClientImport(ctx context.Context, path string) (error, []ImportCar) {
 		car.CarPath = absPath
 		car.Import = int64(c.ImportID)
 		car.Root = encoder.Encode(c.Root)
-		res[absPath] = &car
+		cars = append(cars, car)
+
 	}
 	wg.Done()
 
@@ -190,12 +202,12 @@ func ClientCommP(ctx context.Context, path string) (error, []CommPCar) {
 		fmt.Println("Piece size: ", types.SizeStr(types.NewInt(uint64(ret.Size))))
 		CommPs = append(CommPs, ccar)
 	}
-	for _, p := range CommPs {
-		if _, ok := res[p.CarPath]; ok {
-			res[p.Size] = p.Size
-			res[p.CID] = p.CID
-		}
-	}
+	//for _, p := range CommPs {
+	//	if _, ok := res[p.CarPath]; ok {
+	//		res[p.Size] = p.Size
+	//		res[p.CID] = p.CID
+	//	}
+	//}
 	wg.Done()
 
 	return nil, CommPs

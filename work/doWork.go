@@ -14,13 +14,11 @@ import (
 	"path/filepath"
 	"runtime/debug"
 	"strings"
-	"sync"
 )
 
 var (
 	carpool chan map[string]bool
-	wg      sync.WaitGroup
-	res     map[string]RES
+	rres    map[string]*RES
 )
 
 type ImportCar struct {
@@ -102,15 +100,15 @@ func DoWorkCar(ctx context.Context, path string) {
 	}
 	fmt.Println(i, c)
 	for _, car := range i {
+		var r RES
 		for _, pCar := range c {
-			var r RES
 			r.OriginPath = car.CarPath
 			r.CarPath = car.CarPath
 			r.Root = car.Root
 			r.Size = pCar.Size
 			r.CID = pCar.CID
-			res[car.CarPath] = r
 		}
+		rres[car.CarPath] = &r
 	}
 }
 

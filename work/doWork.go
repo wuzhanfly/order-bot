@@ -18,7 +18,7 @@ import (
 
 var (
 	carpool chan map[string]bool
-	rres    map[string]*RES
+	rres    = make(map[string]*RES)
 )
 
 type ImportCar struct {
@@ -98,7 +98,6 @@ func DoWorkCar(ctx context.Context, path string) {
 		log.Println("ClientCommP is err:", err)
 
 	}
-	fmt.Println(i, c)
 	for _, car := range i {
 		var r RES
 		for _, pCar := range c {

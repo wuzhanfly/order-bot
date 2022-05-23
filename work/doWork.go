@@ -108,6 +108,7 @@ func DoWorkCar(ctx context.Context, path string) {
 			r.Size = pCar.Size
 			r.CID = pCar.CID
 		}
+		fmt.Println(car.CarPath, &r)
 		rres[car.CarPath] = &r
 	}
 }

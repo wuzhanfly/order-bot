@@ -20,7 +20,7 @@ import (
 var (
 	carpool chan map[string]bool
 	wg      sync.WaitGroup
-	res     map[string]interface{}
+	res     map[string]RES
 )
 
 type ImportCar struct {
@@ -111,10 +111,9 @@ func DoWorkCar(ctx context.Context, path string) {
 				r.Root = car.Root
 				r.Size = pCar.Size
 				r.CID = pCar.CID
-
+				res[car.CarPath] = r
 			}
 		}
-		res[car.CarPath] = r
 	}
 
 	wg.Wait()

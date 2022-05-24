@@ -113,9 +113,9 @@ func DoWorkCar(ctx context.Context, path string, minerID string) {
 		for _, pCar := range c {
 			r = fmt.Sprintf("lotus client deal --fast-retrieval=true --manual-piece-cid=%s  --manual-piece-size=%s --manual-stateless-deal --verified-deal=false  --start-epoch=%d %s %s 0 1468800", pCar.CID, pCar.Size, 7*2880+1832824, car.Root, minerID)
 		}
+		fmt.Println(r)
 		rres[car.CarPath] = r
 	}
-	fmt.Println(rres)
 
 }
 
